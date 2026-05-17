@@ -1,4 +1,4 @@
-package com.example.trying_flutter
+package com.calabotics.bluetoothcarapplication
 
 import io.flutter.embedding.android.FlutterActivity
 
