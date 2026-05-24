@@ -1,6 +1,7 @@
 
 import 'dart:async';
 
+import 'package:bluetooth_car_app/screens/control_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 
@@ -84,6 +85,21 @@ class _ScanScreenState extends State<ScanScreen> {
       }
       });
     });
+  }
+
+  Future<void> _connectToDevice (BluetoothDevice device) async {
+    setState(() => _status = 'Conectando a(o) ${device.platformName}...');
+    try {
+    await device.connect(license: License.free, timeout: Duration(seconds: 10));
+    } catch (error) {
+      setState(() => _status = 'Erro ao tentar conexão no dispositivo com ID:  ${device.remoteId}.');
+    }
+    if (mounted) {
+    Navigator.push(context, MaterialPageRoute(builder:(context) => ControlScreen(device: device)));
+    setState(() {
+      _status = 'Conectado ao dispositivo!';
+    });
+    }
   }
 
 
