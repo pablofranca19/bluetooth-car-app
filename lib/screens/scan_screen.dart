@@ -18,9 +18,7 @@ class _ScanScreenState extends State<ScanScreen> {
 
   bool _isBluetoothActive = false;
   bool _isScanning = false;
-  List<ScanResult> _devices = [];
   String _status = '';
-  BluetoothDevice? _device;
   StreamSubscription? _subscription;
 
   @override
@@ -95,19 +93,29 @@ class _ScanScreenState extends State<ScanScreen> {
       setState(() => _status = 'Erro ao tentar conexão no dispositivo com ID:  ${device.remoteId}.');
     }
     if (mounted) {
-    Navigator.push(context, MaterialPageRoute(builder:(context) => ControlScreen(device: device)));
-    setState(() {
+      setState(() {
       _status = 'Conectado ao dispositivo!';
     });
+    Navigator.push(context, MaterialPageRoute(builder:(context) => ControlScreen(device: device)));
     }
   }
 
-
+  @override
   Widget build(BuildContext buildContext) {
     return Scaffold(
-      appBar: AppBar(title: const Text('BLE Controller'),),
-      body: const Center(child: Text('Olá!'),),
-    );
+      appBar: AppBar(title: const Text('BLE Scan'),),
+      body: Column(children: 
+      [Text(_status) ,ElevatedButton(onPressed: () => _isScanning ? _stopScan() : _startScan() ,child: Text(_isScanning ? 'Parar scan' : 'Escanear')), Expanded(child: StreamBuilder(stream: FlutterBluePlus.scanResults, builder: (buildContext, snapshot) {
+        if (!snapshot.hasData) {
+          return Text('Nenhum dispositivo encontrado.');
+        } else {
+          final devices = snapshot.data!.where((name) => name.device.platformName.isNotEmpty).toList(); // o ! é um assert operator que garante null-safety.
+          return ListView.builder(itemCount: devices.length ,padding: const EdgeInsets.all(8.0) ,itemBuilder: (context, index) {
+            final device = devices[index].device;
+            return ListTile(leading: Icon(Icons.bluetooth), title: Text(device.platformName), trailing: ElevatedButton(onPressed: () => _connectToDevice(device), child: Text('Conectar ao dispositivo')),);
+          },);
+        }
+      }))],));
   } 
 
 }
