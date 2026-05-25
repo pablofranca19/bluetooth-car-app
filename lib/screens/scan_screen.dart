@@ -45,7 +45,10 @@ class _ScanScreenState extends State<ScanScreen> {
       _status = 'Scan completo!';
     });
     } catch (error) {
-      setState(() => _status = 'Erro ao iniciar scan, verifique se concedeu permissão ao app para usar o Bluetooth.');
+      setState(() { 
+        _status = 'Erro ao iniciar scan, verifique se concedeu permissão ao app para usar o Bluetooth e se o mesmo está ligado.';
+        _isScanning = false;
+        });
     }
   }
 
@@ -96,7 +99,7 @@ class _ScanScreenState extends State<ScanScreen> {
       setState(() {
       _status = 'Conectado ao dispositivo!';
     });
-    Navigator.push(context, MaterialPageRoute(builder:(context) => ControlScreen(device: device)));
+    await Navigator.push(context, MaterialPageRoute(builder:(context) => ControlScreen(device: device)));
     }
   }
 
@@ -104,8 +107,14 @@ class _ScanScreenState extends State<ScanScreen> {
   Widget build(BuildContext buildContext) {
     return Scaffold(
       appBar: AppBar(title: const Text('BLE Scan'),),
-      body: Column(children: 
-      [Text(_status) ,ElevatedButton(onPressed: () => _isScanning ? _stopScan() : _startScan() ,child: Text(_isScanning ? 'Parar scan' : 'Escanear')), Expanded(child: StreamBuilder(stream: FlutterBluePlus.scanResults, builder: (buildContext, snapshot) {
+      body: Column(mainAxisAlignment: MainAxisAlignment.center, 
+      children:
+        [SizedBox(height: 200,
+          child: Column( mainAxisAlignment: MainAxisAlignment.center, 
+            children: [Text(_status, textAlign: TextAlign.center), SizedBox(height: 16), ElevatedButton(onPressed: () => _isScanning ? _stopScan() : _startScan(), 
+              child: Text(_isScanning ? 'Parar scan' : 'Escanear')), 
+        Expanded(
+          child: StreamBuilder(stream: FlutterBluePlus.scanResults, builder: (buildContext, snapshot) {
         if (!snapshot.hasData) {
           return Text('Nenhum dispositivo encontrado.');
         } else {
@@ -115,7 +124,7 @@ class _ScanScreenState extends State<ScanScreen> {
             return ListTile(leading: Icon(Icons.bluetooth), title: Text(device.platformName), trailing: ElevatedButton(onPressed: () => _connectToDevice(device), child: Text('Conectar ao dispositivo')),);
           },);
         }
-      }))],));
+      }))],))]));
   } 
 
 }
