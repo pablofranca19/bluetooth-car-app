@@ -88,20 +88,35 @@ class _ScanScreenState extends State<ScanScreen> {
     });
   }
 
-  Future<void> _connectToDevice (BluetoothDevice device) async {
-    setState(() => _status = 'Conectando a(o) ${device.platformName}...');
-    try {
-    await device.connect(license: License.free, timeout: Duration(seconds: 10));
-    } catch (error) {
-      setState(() => _status = 'Erro ao tentar conexão no dispositivo com ID:  ${device.remoteId}.');
-    }
-    if (mounted) {
-      setState(() {
-      _status = 'Conectado ao dispositivo!';
-    });
-    await Navigator.push(context, MaterialPageRoute(builder:(context) => ControlScreen(device: device)));
+    Future<void> _connectToDevice (BluetoothDevice device) async {
+      BluetoothCharacteristic? foundCharacteristic;
+      setState(() => _status = 'Conectando a(o) ${device.platformName}...');
+      try {
+      await device.connect(license: License.free, timeout: Duration(seconds: 10));
+      List<BluetoothService> services = await device.discoverServices();
+      for (BluetoothService service in services) {
+          if (service.uuid.toString() == '4fafc201-1fb5-459e-8fcc-c5c9c331914b') {
+            for (BluetoothCharacteristic c in service.characteristics) {
+                if (c.uuid.toString() == 'beb5483e-36e1-4688-b7f5-ea07361b26a8') {  
+                  foundCharacteristic = c;
+        }
+      }
     }
   }
+   if (foundCharacteristic == null) {
+    setState(() => _status = 'Characteristic não encontrada.');
+    return;
+  }
+  if (mounted) {
+        setState(() {
+        _status = 'Conectado ao dispositivo!';
+      });
+      await Navigator.push(context, MaterialPageRoute(builder:(context) => ControlScreen(device: device, bluetoothCharacteristic: foundCharacteristic!)));
+      }
+      } catch (error) {
+        setState(() => _status = 'Erro ao tentar conexão no dispositivo com ID:  ${device.remoteId}.');
+      }
+    }
 
   @override
   Widget build(BuildContext buildContext) {

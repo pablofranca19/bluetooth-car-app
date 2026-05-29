@@ -5,8 +5,8 @@ import 'package:flutter_blue_plus/flutter_blue_plus.dart';
 class ControlScreen extends StatefulWidget {
 
   final BluetoothDevice device;
-  
-  ControlScreen({super.key, required this.device});
+  final BluetoothCharacteristic bluetoothCharacteristic;  
+  ControlScreen({super.key, required this.device, required this.bluetoothCharacteristic});
 
   State<ControlScreen> createState() => _ControlScreenState();
 }
