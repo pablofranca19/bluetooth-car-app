@@ -46,7 +46,7 @@ class _ScanScreenState extends State<ScanScreen> {
     });
     } catch (error) {
       setState(() { 
-        _status = 'Erro ao iniciar scan, verifique se concedeu permissão ao app para usar o Bluetooth e se o mesmo está ligado.';
+        _status = 'Erro ao iniciar scan, verifique se o bluetooth está ligado e se concedeu a permissão necessária.';
         _isScanning = false;
         });
     }
